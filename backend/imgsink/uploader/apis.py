@@ -99,8 +99,16 @@ class ImageProcessingReport(APIView):
         if img_record:
             error = post_data.get("error")
             if not error:
-                for name, url in post_data.get("versions", {}).items():
-                    models.ImageVersion.objects.create(image=img_record, name=name, url=url)
+                for name, properties in post_data.get("versions", {}).items():
+                    models.ImageVersion.objects.create(
+                        image=img_record, 
+                        name=name,
+                        key=properties["key"],
+                        bucket=properties["bucket"],
+                        url=properties["url"],
+                        width=properties["width"],
+                        height=properties["height"],
+                    )
                 img_record.status = models.UserImage.READY
             else:
                 if error.lower() == "invalid_upload":

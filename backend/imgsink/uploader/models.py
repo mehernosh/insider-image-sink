@@ -36,7 +36,11 @@ class UserImage(models.Model):
 
 class ImageVersion(models.Model):
     image = models.ForeignKey(UserImage, on_delete=models.CASCADE)
-    name = models.TextField()
+    name = models.CharField(max_length=1024)
     url = models.URLField(max_length=1024)
+    key = models.TextField(null=False)
+    bucket = models.CharField(max_length=1024)
+    width = models.IntegerField()
+    height = models.IntegerField()
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
