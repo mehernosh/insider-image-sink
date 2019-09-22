@@ -7,10 +7,14 @@ import uuid
 from datetime import date
 from botocore.exceptions import ClientError
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import authentication, permissions
+from django.http import Http404
 from django.contrib.auth.models import User
+
+from rest_framework.views import APIView
+from imgsink.response import ApiResponse
+from rest_framework import authentication, permissions
+
+from uploader import models
 
 class AwsS3SigView(APIView):
     # authentication_classes = [authentication.SessionAuthentication]
@@ -26,7 +30,7 @@ class AwsS3SigView(APIView):
         S3_UPLOADS_BUCKET_REGION = 'ap-south-1'
         bucket_name = 'mehernosh.insider.uploads'
 
-        imgid = str(uuid.uuid4())
+        imgid = models.UserImage.objects.create().id
         upload_raw_path = "raw/%s"%imgid
         object_key = '%s/%s'%(upload_raw_path, self.FILENAME_PLACEHOLDER)
         s3_client = boto3.client(
@@ -45,9 +49,30 @@ class AwsS3SigView(APIView):
             "acl": "public-read",
             # "success_action_redirect": "http://ub64muck:8000/?view=%s"%imgid,
         }
-        response = s3_client.generate_presigned_post(bucket_name,
-                                                     object_key,
-                                                     Fields=fields,
-                                                     Conditions=conditions,
-                                                     ExpiresIn=self.EXPIRATION)
-        return Response(response)
+        s3params = s3_client.generate_presigned_post(
+            bucket_name,
+            object_key,
+            Fields=fields,
+            Conditions=conditions,
+            ExpiresIn=self.EXPIRATION
+        )
+        response = {
+            "imgid": imgid,
+            "s3params": s3params,
+        }
+        return ApiResponse(response)
+
+
+class UploadComplete(APIView):
+    # authentication_classes = [authentication.SessionAuthentication]
+    # permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, format=None):
+        imgid = request.POST.get("imgid", "")
+        img_record = models.UserImage.objects.filter(id=imgid).first()
+        if img_record:
+            img_record.status = models.UserImage.WAITING_TO_PROCESS
+            img_record.save()
+            return ApiResponse({"status":"ok"})
+        else:
+            raise Http404

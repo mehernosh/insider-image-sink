@@ -34,15 +34,32 @@
   </div>
   <script type="text/javascript">
     $(function(){
+      function reportUpload(imgid){
+        var reporting_api = "/uploader/apis/upload-complete";
+        $.ajax({
+          method: 'POST',
+          url: reporting_api,
+          data: {"imgid": imgid}
+        }).done(function(data, status, jqXhr){
+          console.log(data);
+          console.log(status);
+          console.log(jqXhr);
+        }).fail(function(jqXhr, status, error){
+          console.log(jqXhr);
+          console.log(status);
+          console.log(error);
+        });
+      }
+
       function signParamsUploadToS3(form_data){
         var siging_api = "/uploader/apis/aws-signed-post-params";
-        $.get(siging_api).done(function(signed_params,status,jqXhr){
-          console.log(signed_params);
+        $.get(siging_api).done(function(data,status,jqXhr){
+          console.log(data);
           console.log(status);
           console.log(jqXhr);
 
           if(status === "success"){
-            postToAwsS3(signed_params, form_data.get('file'))
+            postToAwsS3(data.payload, form_data.get('file'))
           }
         }).fail(function(jqXhr, status, error){
           console.log(jqXhr);
@@ -53,8 +70,9 @@
 
       function postToAwsS3(signed_params, fileObj) {
         var form_data = new FormData();
-        var s3url = signed_params.url;
-        $.each(signed_params.fields, function(field, val){
+        var s3params = signed_params.s3params;
+        var s3url = s3params.url;
+        $.each(s3params.fields, function(field, val){
           form_data.append(field, val)
         });
         form_data.append('file', fileObj);
@@ -69,6 +87,7 @@
           console.log(data);
           console.log(status);
           console.log(jqXhr);
+          reportUpload(signed_params.imgid)
         }).fail(function(jqXhr, status, error){
           console.log(jqXhr);
           console.log(status);
