@@ -14,9 +14,15 @@ from botocore.exceptions import ClientError
 
 
 class UploaderView(TemplateView):
-    template_name = "uploader/index.html"
+    template_name = "uploader/simple_uploader.html"
 
     @method_decorator(ensure_csrf_cookie)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
+class CropperUploaderView(TemplateView):
+    template_name = "uploader/cropper_uploader.html"
+
+    @method_decorator(ensure_csrf_cookie)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)

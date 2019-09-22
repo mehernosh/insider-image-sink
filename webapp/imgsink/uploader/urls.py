@@ -11,6 +11,7 @@ apiurls = [
 
 urlpatterns = [
     path('', views.UploaderView.as_view(), name='index'),
+    path('precropped', views.CropperUploaderView.as_view(), name='precropped'),
     path('apis/', include(apiurls))
 ]
 

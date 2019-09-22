@@ -1,0 +1,137 @@
+{% extends 'gallery/base.html' %}
+{% load static %}
+
+{% block headincludes %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.5/cropper.css" integrity="sha256-x8iLuq/BLgVhgqscHiKrBZFP60kV2Xuilmpqy7kD/vI=" crossorigin="anonymous" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.5/cropper.js" integrity="sha256-U/8sUxL62BDCJvl8Dmu1uuTtKilSrHytsP3XfgCJZwo=" crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery-cropper@1.0.0/dist/jquery-cropper.min.js"></script>
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center" id="cropper-container">
+      <!-- <img id="cropthis" 
+        src="https://s3.ap-south-1.amazonaws.com/mehernosh.insider.uploads/raw/bd65576e-fbe2-4c1f-9a7e-69e1d7162547/flag.png"
+        style="max-width: 100%"> -->
+    </div>
+    <div class="col-md-2"></div>
+  </div>
+  <div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+      <h4 class="text-center">Upload Image</h4>
+      <p>
+        Please select an image which is at least 1024x1024 px. <br>
+        Larger images will be cropped. Smaller images will not be accepted
+      </p>
+      <form id="upload-form" method="post" enctype="multipart/form-data">
+        <div class="custom-file">
+          <input name="file" type="file" class="form-control-file border" accept="image/*" id="fileinput">
+          <label class="custom-file-label" for="fileinput">Choose file</label>
+        </div>
+        <hr>
+        <input type="submit" class="btn btn-block btn-primary" id="submit" disabled="disabled">
+      </form>
+    </div>
+    <div class="col-md-3"></div>
+  </div>
+{% endblock %}
+
+{% block bodyscripts %}
+  <script type="text/javascript">
+    $(function(){
+      var sizes = {
+        full: { w: 1024, h: 1024 },
+        horizontal: { w: 755, h: 450 },
+        vertical: { w:365, h:450 },
+        'horizontal-small': { w:365, h:212 },
+        gallery: { w:380, h:380 }
+      }
+
+      $("#cropthis").hide()
+
+      $("#fileinput").change(function (evt) {
+        var URL = window.URL || window.webkitURL;
+        var file, img;
+        var message = "Please use an image of at least 1024x1024 px."
+        var widthOK, heightOK;
+        if ((file = this.files[0])) {
+          var img = new Image();
+          img.onload = function() {
+            widthOK  = (this.width >= 1024)
+            heightOK = (this.height >= 1024)
+            if(widthOK && heightOK){
+              img.style = "width:100%";
+              $(".custom-file-label").html(file.name)
+              $("#cropper-container").append(img);
+              // readyCropperImages($("#cropper-container"), img.src);
+              initCropperAround($("#cropper-container img"), 1024, 1024)
+              return true;
+            }else{
+              evt.preventDefault();
+              if(!widthOK){
+                message = message + " Detected width: " + this.width +"px."
+              }
+              if (!heightOK) {
+                message = message + " Detected height: " + this.height +"px."
+              }
+              $("#fileinput")[0].value = "";
+              alert(message);
+            }
+          };
+          img.src = URL.createObjectURL(file);
+        }
+      });
+
+
+      
+      // window.cropperImgs = [];
+      // function readyCropperImages(cropperContainer, dataSrc){
+      //   $.each(sizes, function(name, size){
+      //     var minCroppedWidth = size.w;
+      //     var minCroppedHeight = size.h;
+
+      //     var img = new Image()
+      //     img.src = dataSrc;
+      //     img.style = "width:90%; margin:10px;"
+      //     img_id = "cropper-"+name;
+      //     img.id = img_id
+
+      //     cropperContainer.append(img);
+      //     var imgElement = $("#"+img_id);
+      //     window.cropperImgs.push(imgElement)
+      //     initCropperAround(imgElement, minCroppedWidth, minCroppedHeight);
+      //     cropperContainer.append("<br><strong>"+name+"</strong>");
+      //     cropperContainer.append("<hr>");
+      //   });
+      // }
+      function initCropperAround(imgElement, minw, minh){
+        imgElement.cropper({
+          viewMode:3,
+          aspectRatio: minw / minh,
+          crop: function (event) {
+            var width = event.detail.width;
+            var height = event.detail.height;
+
+            if (
+              width < minw
+              || height < minh
+            ) {
+              console.log("Forcing dimensions.")
+              cropper.setData({
+                width: minw,
+                height: minh,
+              });
+            }
+          }
+        });
+        var cropper = imgElement.data('cropper');
+      }
+    })
+
+  </script>
+{% endblock %}
