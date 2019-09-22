@@ -129,8 +129,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
-AWS_ACCESS_KEY_ID = 'AKIAY64B7RC6IZP2QA64'
-AWS_SECRET_ACCESS_KEY = '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'
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 S3_UPLOADS_BUCKET = 'mehernosh.insider.uploads'
 S3_UPLOADS_BUCKET_REGION = 'ap-south-1'
 S3_UPLOADS_BUCKET_ENDPOINTS = 's3.ap-south-1.amazonaws.com'
