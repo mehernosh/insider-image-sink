@@ -31,38 +31,43 @@
     </ul>
   </nav>
   <div class="container">
-    <h1 class="text-center">Gallery</h1>
+    <h1 class="text-center">Crops</h1>
     <div class="row">
-      {% for image in images %}
-      <div class="col-md-6 border">
-        <a href="/gallery/image?id={{image.id}}">
-          {{image.id}}
-        </a>
-        <label class="label label-info">{{image.get_status_display}}</label>
-        <br>
-        Uploaded: {{image.created_at|date:'SHORT_DATETIME_FORMAT'}}<br>
+      <div class="col-12 text-center">
+        <small>{{image.id}}</small>
+        <br>Status: {{image.get_status_display}}
+        <br>Uploaded: {{image.created_at|date:'SHORT_DATETIME_FORMAT'}}
       </div>
-      {% endfor %}
     </div>
     <hr>
-    <div class="row d-flex justify-content-center">
-
-      <span class="step-links">
-        {% if images.has_previous %}
-          <a href="?page=1">&laquo; first</a>
-          <a href="?page={{ images.previous_page_number }}">previous</a>
-        {% endif %}
-
-        <span class="current">
-          Page {{ images.number }} of {{ images.paginator.num_pages }}.
-        </span>
-
-        {% if images.has_next %}
-          <a href="?page={{ images.next_page_number }}">next</a>
-          <a href="?page={{ images.paginator.num_pages }}">last &raquo;</a>
-        {% endif %}
-      </span>
-
+    <div class="row text-center">
+      {% if image.status == ready %}
+        {% for v in versions %}
+          <div class="col-md-4 border">
+            <img src="{{v.url}}" class="img-fluid">
+            <br>
+            {{v.width}}x{{v.height}}
+            <br>
+            <strong>{{v.name}}</strong>
+            <br>
+          </div>
+        {% endfor %}
+      {% elif image.status in waiting  %}
+        <div class="col-12 text-center">
+          The images will be available shortly.
+          <script>
+            setTimeout(function () { location.reload(true); }, 5000);
+          </script>
+        </div>
+      {% elif image.status == error %}
+        <div class="col-12 text-center">
+          Something went wrong while processing this request.
+        </div>
+      {% elif image.status == invaid %}
+        <div class="col-12 text-center">
+          The uploaded image was too small.
+        </div>
+      {% endif %}
     </div>
   </div>
 </body>
