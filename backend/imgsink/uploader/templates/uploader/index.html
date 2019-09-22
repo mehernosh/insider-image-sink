@@ -1,47 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title></title>
-  <link rel="stylesheet" 
-    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
-    crossorigin="anonymous">
+{% extends 'gallery/base.html' %}
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" 
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" 
-    crossorigin="anonymous">
-  </script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" 
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" 
-    crossorigin="anonymous">
-  </script>
-</head>
-<body>
-  <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" href="/gallery">Gallery</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/uploader">Upload</a>
-      </li>
-    </ul>
-  </nav>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4"></div>
-      <div class="col-md-4">
-        <form id="upload-form" method="post" enctype="multipart/form-data">
-          <input name="file" type="file" class="form-control-file border" accept="image/*" id="fileinput">
-          <input type="submit" class="btn btn-primary" id="submit">Upload</button>
-        </form>
-      </div>
-      <div class="col-md-4"></div>
+{% block content %}
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+      <form id="upload-form" method="post" enctype="multipart/form-data">
+        <input name="file" type="file" class="form-control-file border" accept="image/*" id="fileinput">
+        <input type="submit" class="btn btn-primary" id="submit">Upload</button>
+      </form>
     </div>
+    <div class="col-md-4"></div>
   </div>
+{% endblock %}
+  
+{% block bodyscripts %}
   <script type="text/javascript">
     $(function(){
       function reportUpload(imgid){
@@ -51,9 +23,7 @@
           url: reporting_api,
           data: {"imgid": imgid}
         }).done(function(data, status, jqXhr){
-          console.log(data);
-          console.log(status);
-          console.log(jqXhr);
+          window.location.replace("/gallery/image?id="+imgid);
         }).fail(function(jqXhr, status, error){
           console.log(jqXhr);
           console.log(status);
@@ -141,30 +111,4 @@
       });
     })
   </script>
-  
-
-
-
-
-  <!-- <form action="https://s3.ap-south-1.amazonaws.com/mehernosh.insider.uploads" 
-    method="post" enctype="multipart/form-data">
-    <input type="input"  name="key" value="test2/${filename}" /><br />
-    <input type="input"  name="acl" value="public-read" /><br />
-    <input type="hidden" name="x-amz-algorithm" value="AWS4-HMAC-SHA256" /><br />
-
-    <input type="text"   name="x-amz-credential" value="AKIAY64B7RC6BWO2GJKW/20190920/ap-south-1/s3/aws4_request" /><br />
-
-    <input type="text"   name="x-amz-date" value="20190920T091333Z" /><br />
-
-
-    <input type="hidden" name="Policy" value='eyJleHBpcmF0aW9uIjogIjIwMTktMDktMjFUMDk6MTM6MzNaIiwgImNvbmRpdGlvbnMiOiBbeyJhY2wiOiAicHVibGljLXJlYWQifSwgWyJjb250ZW50LWxlbmd0aC1yYW5nZSIsIDEwMjQsIDEwNDg1NzYwXSwgWyJzdGFydHMtd2l0aCIsICIka2V5IiwgInRlc3QyLyJdLCB7ImJ1Y2tldCI6ICJtZWhlcm5vc2guaW5zaWRlci51cGxvYWRzIn0sIFsic3RhcnRzLXdpdGgiLCAiJGtleSIsICJ0ZXN0Mi8iXSwgeyJ4LWFtei1hbGdvcml0aG0iOiAiQVdTNC1ITUFDLVNIQTI1NiJ9LCB7IngtYW16LWNyZWRlbnRpYWwiOiAiQUtJQVk2NEI3UkM2QldPMkdKS1cvMjAxOTA5MjAvYXAtc291dGgtMS9zMy9hd3M0X3JlcXVlc3QifSwgeyJ4LWFtei1kYXRlIjogIjIwMTkwOTIwVDA5MTMzM1oifV19' /><br />
-
-    <input type="hidden" name="x-amz-signature" value="a80922fca55076f0c545cd7833d911ddca064293c1d2cc4bf2ac8b09f447ffb8" />
-
-    <br /><br />
-    <input type="file"   name="file" /> <br />
-    <input type="submit" name="submit" value="Upload to Amazon S3" /><br />
-    
-  </form> -->
-</body>
-</html>
+{% endblock %}

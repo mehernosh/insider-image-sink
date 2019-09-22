@@ -1,69 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title></title>
-  <link rel="stylesheet" 
-    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
-    crossorigin="anonymous">
+{% extends 'gallery/base.html' %}
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" 
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" 
-    crossorigin="anonymous">
-  </script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" 
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" 
-    crossorigin="anonymous">
-  </script>
-</head>
-<body>
-  <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" href="/gallery">Gallery</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/uploader">Upload</a>
-      </li>
-    </ul>
-  </nav>
-  <div class="container">
-    <h1 class="text-center">Gallery</h1>
-    <div class="row">
-      {% for image in images %}
-      <div class="col-md-6 border">
-        <a href="/gallery/image?id={{image.id}}">
-          {{image.id}}
-        </a>
-        <label class="label label-info">{{image.get_status_display}}</label>
-        <br>
-        Uploaded: {{image.created_at|date:'SHORT_DATETIME_FORMAT'}}<br>
-      </div>
-      {% endfor %}
+{% block content %}
+  <h1 class="text-center">Gallery</h1>
+  <div class="row">
+    {% for image in images %}
+    <div class="col-md-6 border">
+      <a href="/gallery/image?id={{image.id}}">
+        {{image.id}}
+      </a>
+      <label class="label label-info">{{image.get_status_display}}</label>
+      <br>
+      Uploaded: {{image.created_at|date:'SHORT_DATETIME_FORMAT'}}<br>
     </div>
-    <hr>
-    <div class="row d-flex justify-content-center">
+    {% endfor %}
+  </div>
+  <hr>
+  <div class="row d-flex justify-content-center">
 
-      <span class="step-links">
-        {% if images.has_previous %}
-          <a href="?page=1">&laquo; first</a>
-          <a href="?page={{ images.previous_page_number }}">previous</a>
-        {% endif %}
+    <span class="step-links">
+      {% if images.has_previous %}
+        <a href="?page=1">&laquo; first</a>
+        <a href="?page={{ images.previous_page_number }}">previous</a>
+      {% endif %}
 
-        <span class="current">
-          Page {{ images.number }} of {{ images.paginator.num_pages }}.
-        </span>
-
-        {% if images.has_next %}
-          <a href="?page={{ images.next_page_number }}">next</a>
-          <a href="?page={{ images.paginator.num_pages }}">last &raquo;</a>
-        {% endif %}
+      <span class="current">
+        Page {{ images.number }} of {{ images.paginator.num_pages }}.
       </span>
 
-    </div>
+      {% if images.has_next %}
+        <a href="?page={{ images.next_page_number }}">next</a>
+        <a href="?page={{ images.paginator.num_pages }}">last &raquo;</a>
+      {% endif %}
+    </span>
+
   </div>
-</body>
-</html>
+{% endblock %}

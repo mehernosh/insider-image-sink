@@ -16,7 +16,9 @@ class GalleryView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        image_list = models.UserImage.objects.all()
+        image_list = models.UserImage.objects.exclude(
+            status=models.UserImage.WAITING_TO_UPLOAD
+        )
         paginator = Paginator(image_list, 10)
         page = self.request.GET.get('page', 1)
         images = paginator.get_page(page)
