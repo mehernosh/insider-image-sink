@@ -2,14 +2,23 @@
 
 {% block content %}
   <div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+      <h4 class="text-center">Upload Image</h4>
+      <p>
+        Please select an image which is at least 1024x1024 px. <br>
+        Larger images will be cropped. Smaller images will not be accepted
+      </p>
       <form id="upload-form" method="post" enctype="multipart/form-data">
-        <input name="file" type="file" class="form-control-file border" accept="image/*" id="fileinput">
-        <input type="submit" class="btn btn-primary" id="submit">Upload</button>
+        <div class="custom-file">
+          <input name="file" type="file" class="form-control-file border" accept="image/*" id="fileinput">
+          <label class="custom-file-label" for="fileinput">Choose file</label>
+        </div>
+        <hr>
+        <input type="submit" class="btn btn-block btn-primary" id="submit">
       </form>
     </div>
-    <div class="col-md-4"></div>
+    <div class="col-md-3"></div>
   </div>
 {% endblock %}
   
@@ -92,7 +101,8 @@
             widthOK  = (this.width >= 1024)
             heightOK = (this.height >= 1024)
             if(widthOK && heightOK){
-              return true
+              $(".custom-file-label").html(file.name)
+              return true;
             }else{
               evt.preventDefault();
               if(!widthOK){
