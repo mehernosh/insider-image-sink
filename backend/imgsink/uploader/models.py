@@ -12,12 +12,12 @@ class UserImage(models.Model):
     WAITING_TO_UPLOAD = 'wtu'
     
     STATUS_CHOICES = (
-        (ERROR, 'ERROR'),
-        (INVALID_UPLOAD, 'INVALID_UPLOAD'),
-        (READY, 'READY'),
-        (PROCESSING, 'PROCESSING'),
-        (WAITING_TO_PROCESS, 'WAITING_TO_PROCESS'),
-        (WAITING_TO_UPLOAD, 'WAITING_TO_UPLOAD'),
+        (ERROR, 'Error'),
+        (INVALID_UPLOAD, 'Invalid Upload'),
+        (READY, 'Ready'),
+        (PROCESSING, 'Processing'),
+        (WAITING_TO_PROCESS, 'Waiting to process'),
+        (WAITING_TO_UPLOAD, 'Waiting to upload'),
     )
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -32,6 +32,10 @@ class UserImage(models.Model):
     @classmethod
     def waiting_for_processing(cls):
         return cls.objects.filter(status__in=(cls.WAITING_TO_UPLOAD, cls.WAITING_TO_PROCESS, cls.PROCESSING))
+
+    def versions(self):
+        return self.imageversion_set.all()
+
 
 
 class ImageVersion(models.Model):
