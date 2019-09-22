@@ -29,7 +29,6 @@ SIZES = [
 ]
 
 def resize_image(img_obj, target_width, target_height):
-    # https://github.com/thumbor/thumbor/blob/88b2925b9b97726838035f3320c5b301ec39ed3b/thumbor/transformer.py
     target_img = img_obj.copy()
     original_width, original_height = target_img.size
     img_ratio = round(original_width / original_height, 3)
