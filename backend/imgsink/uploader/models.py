@@ -22,8 +22,8 @@ class UserImage(models.Model):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     status = models.CharField(max_length=3, choices=STATUS_CHOICES, default=WAITING_TO_UPLOAD)
-    created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     @classmethod
     def waiting_on_upload(cls):
@@ -46,5 +46,5 @@ class ImageVersion(models.Model):
     bucket = models.CharField(max_length=1024)
     width = models.IntegerField()
     height = models.IntegerField()
-    created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
