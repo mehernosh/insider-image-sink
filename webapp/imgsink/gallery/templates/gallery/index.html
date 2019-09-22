@@ -5,9 +5,10 @@
   <div class="row">
     {% for image in images %}
     <div class="col-md-6 border">
-      <a href="/gallery/image?id={{image.id}}">
+      <a class="small" href="/gallery/image?id={{image.id}}">
+        <img src="{{image.guess_small_img}}" style="width:100px;"><br>
         {{image.id}}
-      </a>
+      </a><br>
       <label class="label label-info">{{image.get_status_display}}</label>
       <br>
       Uploaded: {{image.created_at|date:'SHORT_DATETIME_FORMAT'}}<br>
