@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <link rel="stylesheet" 
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
+    crossorigin="anonymous">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" 
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" 
+    crossorigin="anonymous">
+  </script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" 
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" 
+    crossorigin="anonymous">
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4"></div>
+      <div class="col-md-4">
+        <form id="upload-form" method="post" enctype="multipart/form-data">
+          <input name="file" type="file" class="form-control-file border" accept="image/*" id="fileinput">
+          <input type="submit" class="btn btn-primary" id="submit">Upload</button>
+        </form>
+      </div>
+      <div class="col-md-4"></div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    $(function(){
+      function signParamsUploadToS3(form_data){
+        var siging_api = "/uploader/apis/aws-signed-post-params";
+        $.get(siging_api).done(function(signed_params,status,jqXhr){
+          console.log(signed_params);
+          console.log(status);
+          console.log(jqXhr);
+
+          if(status === "success"){
+            postToAwsS3(signed_params, form_data.get('file'))
+          }
+        }).fail(function(jqXhr, status, error){
+          console.log(jqXhr);
+          console.log(status);
+          console.log(error);
+        });
+      }
+
+      function postToAwsS3(signed_params, fileObj) {
+        var form_data = new FormData();
+        var s3url = signed_params.url;
+        $.each(signed_params.fields, function(field, val){
+          form_data.append(field, val)
+        });
+        form_data.append('file', fileObj);
+        $.ajax({
+          method: 'POST',
+          url: s3url,
+          data: form_data,
+          processData: false,
+          enctype: "multipart/form-data",
+          contentType: false,
+        }).done(function(data, status, jqXhr){
+          console.log(data);
+          console.log(status);
+          console.log(jqXhr);
+        }).fail(function(jqXhr, status, error){
+          console.log(jqXhr);
+          console.log(status);
+          console.log(error);
+        });
+      }
+
+      $("#upload-form").submit(function(evt){
+        var form_data = new FormData($(this)[0]);
+        signParamsUploadToS3(form_data);
+        evt.preventDefault();
+      });
+
+      $("#fileinput").change(function (evt) {
+        var URL = window.URL || window.webkitURL;
+        var file, img;
+        var message = "Please use an image of at least 1024x1024 px."
+        var widthOK, heightOK;
+        if ((file = this.files[0])) {
+          img = new Image();
+          img.onload = function () {
+            widthOK  = (this.width >= 1024)
+            heightOK = (this.height >= 1024)
+            if(widthOK && heightOK){
+              return true
+            }else{
+              evt.preventDefault();
+              if(!widthOK){
+                message = message + " Detected width: " + this.width +"px."
+              }
+              if (!heightOK) {
+                message = message + " Detected height: " + this.height +"px."
+              }
+              $("#fileinput")[0].value = "";
+              alert(message);
+
+            }
+          };
+          img.src = URL.createObjectURL(file);
+        }
+      });
+    })
+  </script>
+  
+
+
+
+
+  <!-- <form action="https://s3.ap-south-1.amazonaws.com/mehernosh.insider.uploads" 
+    method="post" enctype="multipart/form-data">
+    <input type="input"  name="key" value="test2/${filename}" /><br />
+    <input type="input"  name="acl" value="public-read" /><br />
+    <input type="hidden" name="x-amz-algorithm" value="AWS4-HMAC-SHA256" /><br />
+
+    <input type="text"   name="x-amz-credential" value="AKIAY64B7RC6BWO2GJKW/20190920/ap-south-1/s3/aws4_request" /><br />
+
+    <input type="text"   name="x-amz-date" value="20190920T091333Z" /><br />
+
+
+    <input type="hidden" name="Policy" value='eyJleHBpcmF0aW9uIjogIjIwMTktMDktMjFUMDk6MTM6MzNaIiwgImNvbmRpdGlvbnMiOiBbeyJhY2wiOiAicHVibGljLXJlYWQifSwgWyJjb250ZW50LWxlbmd0aC1yYW5nZSIsIDEwMjQsIDEwNDg1NzYwXSwgWyJzdGFydHMtd2l0aCIsICIka2V5IiwgInRlc3QyLyJdLCB7ImJ1Y2tldCI6ICJtZWhlcm5vc2guaW5zaWRlci51cGxvYWRzIn0sIFsic3RhcnRzLXdpdGgiLCAiJGtleSIsICJ0ZXN0Mi8iXSwgeyJ4LWFtei1hbGdvcml0aG0iOiAiQVdTNC1ITUFDLVNIQTI1NiJ9LCB7IngtYW16LWNyZWRlbnRpYWwiOiAiQUtJQVk2NEI3UkM2QldPMkdKS1cvMjAxOTA5MjAvYXAtc291dGgtMS9zMy9hd3M0X3JlcXVlc3QifSwgeyJ4LWFtei1kYXRlIjogIjIwMTkwOTIwVDA5MTMzM1oifV19' /><br />
+
+    <input type="hidden" name="x-amz-signature" value="a80922fca55076f0c545cd7833d911ddca064293c1d2cc4bf2ac8b09f447ffb8" />
+
+    <br /><br />
+    <input type="file"   name="file" /> <br />
+    <input type="submit" name="submit" value="Upload to Amazon S3" /><br />
+    
+  </form> -->
+</body>
+</html>
