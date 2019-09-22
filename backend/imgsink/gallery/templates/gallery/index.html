@@ -27,9 +27,10 @@
       <div class="col-md-6 border">
         <a href="/gallery/image?id={{image.id}}">
           {{image.id}}
-        </a><label class="label label-info">{{image.get_status_display}}</label>
+        </a>
+        <label class="label label-info">{{image.get_status_display}}</label>
         <br>
-        Uploaded at: {{image.created_at}}<br>
+        Uploaded: {{image.created_at|date:'SHORT_DATETIME_FORMAT'}}<br>
       </div>
       {% endfor %}
     </div>
