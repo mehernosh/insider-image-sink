@@ -1,7 +1,7 @@
 import uuid
 from collections import namedtuple
 from django.db import models
-
+from django.contrib.auth.models import User
 
 class UserImage(models.Model):
     ERROR = 'err'
@@ -24,6 +24,15 @@ class UserImage(models.Model):
     status = models.CharField(max_length=3, choices=STATUS_CHOICES, default=WAITING_TO_UPLOAD)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
+
+    @classmethod
+    def waiting_on_upload(cls):
+        return cls.objects.filter(status=cls.WAITING_TO_UPLOAD)
+
+    @classmethod
+    def waiting_for_processing(cls):
+        return cls.objects.filter(status__in=(cls.WAITING_TO_UPLOAD, cls.WAITING_TO_PROCESS, cls.PROCESSING))
+
 
 class ImageVersion(models.Model):
     image = models.ForeignKey(UserImage, on_delete=models.CASCADE)

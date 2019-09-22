@@ -85,7 +85,7 @@
           contentType: false,
         }).done(function(data, status, jqXhr){
           console.log(data);
-          console.log(status);
+          console.log("s3 upload" + status);
           console.log(jqXhr);
           reportUpload(signed_params.imgid)
         }).fail(function(jqXhr, status, error){

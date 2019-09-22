@@ -25,7 +25,12 @@ SECRET_KEY = 'x*1i4)_7xy2c47l!xu+fl_pz*ahx(8s#+k^j@_a$dncltju8gd'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1', 'ub64muck', '192.168.56.154', '15.206.14.176', 'ec2-15-206-14-176.ap-south-1.compute.amazonaws.com']
+ALLOWED_HOSTS = [
+    'ub64muck', 
+    '192.168.56.154', 
+    '15.206.14.176', 
+    'ec2-15-206-14-176.ap-south-1.compute.amazonaws.com'
+]
 
 
 # Application definition
@@ -38,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'uploader'
+    'rest_framework.authtoken',
+    'uploader',
 ]
 
 MIDDLEWARE = [
@@ -121,8 +127,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-AWS_ACCESS_KEY_ID = 'AKIAY64B7RC6BWO2GJKW'
-AWS_SECRET_ACCESS_KEY = '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'
+AWS_ACCESS_KEY_ID = 'AKIAY64B7RC6IZP2QA64'
+AWS_SECRET_ACCESS_KEY = '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'
 S3_UPLOADS_BUCKET = 'mehernosh.insider.uploads'
 S3_UPLOADS_BUCKET_REGION = 'ap-south-1'
 S3_UPLOADS_BUCKET_ENDPOINTS = 's3.ap-south-1.amazonaws.com'
