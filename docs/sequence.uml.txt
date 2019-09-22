@@ -1,0 +1,13 @@
+title Image Sink @sequencediagram.org
+
+Browser->Webapp: Get S3 upload authorisation
+Webapp-->Browser: S3 upload authorised params
+Browser->AWS S3: POST image
+AWS S3-->Browser: OK/Accepted
+Browser->Webapp: Report uploaded
+Browser->Webapp: Poll for progress
+AWS S3->AWS Lambda: Notify new object
+AWS Lambda->(2)AWS Lambda:crop and resize images
+AWS Lambda->AWS S3:Save processed images
+AWS Lambda->Webapp: Notify processing complete
+Webapp-->Browser:Page with cropped images
