@@ -120,6 +120,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 AWS_ACCESS_KEY_ID = 'AKIAY64B7RC6BWO2GJKW'
 AWS_SECRET_ACCESS_KEY = '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'
