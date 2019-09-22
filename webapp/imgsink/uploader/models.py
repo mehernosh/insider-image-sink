@@ -36,6 +36,13 @@ class UserImage(models.Model):
     def versions(self):
         return self.imageversion_set.all()
 
+    def guess_small_img(self):
+        url = None
+        if self.status == UserImage.READY:
+            smallest_version = self.imageversion_set.order_by("height").first()
+            if smallest_version:
+                url = smallest_version.url
+        return url
 
 
 class ImageVersion(models.Model):
