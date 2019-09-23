@@ -10,6 +10,9 @@ from django.utils.decorators import method_decorator
 from django.conf import settings
 from rest_framework.views import APIView
 from imgsink.response import ApiResponse
+from imgsink.s3utils import get_s3_client,\
+    build_s3_public_url,\
+    save_to_s3
 from rest_framework import authentication, permissions
 
 from uploader import models
@@ -27,25 +30,7 @@ class S3SigningView(APIView):
         imgid = models.UserImage.objects.create().id
         upload_raw_path = "raw/%s"%imgid
         object_key = '%s/%s'%(upload_raw_path, self.FILENAME_PLACEHOLDER)
-        s3_client = boto3.client(
-            's3', 
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID, 
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.S3_UPLOADS_BUCKET_REGION
-        )
-        conditions = [
-            {'acl': 'public-read'}, 
-            ['content-length-range', 1024, 10485760],
-            ['starts-with', '$key', upload_raw_path],
-        ]
-        fields = { "acl": "public-read" }
-        s3params = s3_client.generate_presigned_post(
-            bucket_name,
-            object_key,
-            Fields=fields,
-            Conditions=conditions,
-            ExpiresIn=self.EXPIRATION
-        )
+        s3params = s3params = get_s3_signed_params(upload_raw_path, object_key)
         response = {
             "imgid": imgid,
             "s3params": s3params,
@@ -119,12 +104,7 @@ class ImageValidateAndPassThrough(APIView):
         if file_paths:
             img_record.status = models.UserImage.PROCESSING
             img_record.save()
-            s3_client = boto3.client(
-                's3', 
-                aws_access_key_id=settings.AWS_ACCESS_KEY_ID, 
-                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-                region_name=settings.S3_UPLOADS_BUCKET_REGION
-            )
+            s3_client = get_s3_client()
             for name, file_path in file_paths.items():
                 target_size = settings.TARGET_IMAGE_SIZES.get(name)
                 upload_key = 'pre-processed/%s/%s-%s-%s%s'%(
@@ -137,13 +117,7 @@ class ImageValidateAndPassThrough(APIView):
                 print("upload_key", upload_key)
                 with open(file_path, 'rb') as ufile:
                     try:
-                        s3_response = s3_client.put_object(
-                            ACL='public-read',
-                            Body=ufile,
-                            Bucket=settings.S3_UPLOADS_BUCKET,
-                            Key=upload_key
-                        )
-                        print(s3_response)
+                        s3_response = save_to_s3(upload_key, ufile, s3_client)
                     except ClientError as ce:
                         print(ex)
                         traceback.print_exc(file=sys.stdout)
@@ -151,11 +125,7 @@ class ImageValidateAndPassThrough(APIView):
                         img_record.save()
                         return ApiResponse({"imgid": img_record.id}, status=500)
 
-                    imgurl = "https://s3.%s.amazonaws.com/%s/%s"%(
-                        settings.S3_UPLOADS_BUCKET_REGION,
-                        settings.S3_UPLOADS_BUCKET, 
-                        upload_key
-                    )
+                    imgurl = build_s3_public_url( upload_key)
                     models.ImageVersion.objects.create(
                         image=img_record, 
                         name=name,

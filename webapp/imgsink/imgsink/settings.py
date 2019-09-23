@@ -142,3 +142,9 @@ TARGET_IMAGE_SIZES = {
     'horizontal-small': { 'w':365, 'h':212 },
     'gallery': { 'w':380, 'h':380 }
 }
+
+S3_SIGNING_FIELDS = { "acl": "public-read" }
+S3_SIGNING_CONDITIONS = [
+    {'acl': 'public-read'}, 
+    ['content-length-range', 1024, 10485760],
+]
