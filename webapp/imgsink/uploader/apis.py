@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 
-class S3SigView(APIView):
+class S3SigningView(APIView):
     # authentication_classes = [authentication.SessionAuthentication]
     # permission_classes = [permissions.IsAdminUser]
 
