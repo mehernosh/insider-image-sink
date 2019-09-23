@@ -12,7 +12,8 @@ from rest_framework.views import APIView
 from imgsink.response import ApiResponse
 from imgsink.s3utils import get_s3_client,\
     build_s3_public_url,\
-    save_to_s3
+    save_to_s3,\
+    get_s3_signed_params
 from rest_framework import authentication, permissions
 
 from uploader import models
