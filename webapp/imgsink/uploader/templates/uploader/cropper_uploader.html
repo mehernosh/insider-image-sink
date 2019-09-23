@@ -150,7 +150,7 @@
         if(!this.checked) return;
         var name = radioBtn.data("name");
         $(".subcontainer").hide();
-        $("#cropper-"+name).parent().show();
+        $("#cropper-"+name).parent().parent().show();
         if(radioBtn.hasClass("committed")) return;
         initCropperAround("cropper-"+name, sizes[name].w, sizes[name].h);
       }
@@ -183,7 +183,6 @@
         evt.preventDefault();
       }
 
-      window.cropperImgs = {};
 
       function readyCropperImages(cropperContainer, dataSrc){
         var btncontainer = $("<div>");
@@ -193,15 +192,15 @@
 
           var img = new Image()
           img.src = dataSrc;
-          var height = $(window).width()*0.5;
-          img.style = "max-width:90%; margin:10px;max-height:"+height+"px;"
+          var height = Math.round($(window).height()*0.7);
+          img.style = "max-height:"+height+"px;height:auto;width:auto;max-width:100%;";
           imgId = "cropper-"+name;
           img.id = imgId
+
           var subcontainer = $("<div class='subcontainer'>");
           subcontainer.append("<br><strong>"+name+"</strong><br>");
-          subcontainer.append(img);
+          subcontainer.append($("<div style='display:inline-block'>").append(img));
           var imgElement = $("#"+imgId);
-          window.cropperImgs['name'] = [imgElement, null];
           btncontainer.append(getRadioElement(name, minCroppedWidth, minCroppedHeight));
           //initCropperAround(imgElement, minCroppedWidth, minCroppedHeight);
           subcontainer.append("<button class='btn btn-success btn-sm btn-block commit-crop-btn' data-name="+name+">Crop to selection</button>")
