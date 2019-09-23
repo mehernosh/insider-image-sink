@@ -47,13 +47,43 @@
 {% block bodyscripts %}
   <script type="text/javascript">
     $(function(){
-      // var sizes = {
-      //   full: { w: 1024, h: 1024 },
-      //   horizontal: { w: 755, h: 450 },
-      //   vertical: { w:365, h:450 },
-      //   'horizontal-small': { w:365, h:212 },
-      //   gallery: { w:380, h:380 }
-      // }
+      var mimetype = "image/png";
+      $("#upload-form").submit(function(evt){
+        evt.preventDefault();
+      })
+
+      $("#submit").click(function(evt){
+        var form_data = new FormData();
+        $(".subcontainer img").each(function(idx, imgTag){
+          var imgElement = $(imgTag);
+          var byteString = atob(imgTag.src.split(',')[1]);
+          var ab = new ArrayBuffer(byteString.length);
+          var ia = new Uint8Array(ab);
+          for (var i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+          var blob = new Blob([ab], {type: mimetype});
+          var name = imgTag.id.replace("cropper-","");
+          form_data.append(name, blob);
+        })
+        
+        $.ajax({
+          method: 'POST',
+          url: '/uploader/apis/passthrough',
+          data: form_data,
+          processData: false,
+          enctype: "multipart/form-data",
+          contentType: false,
+        }).done(function(data, status, jqXhr){
+          console.log(data);
+          console.log("webapp upload" + status);
+          console.log(jqXhr);
+        }).fail(function(jqXhr, status, error){
+          console.log(jqXhr);
+          console.log(status);
+          console.log(error);
+        });
+      });
 
       var sizes = {{target_image_sizes|safe}}
 
@@ -65,6 +95,12 @@
         var message = "Please use an image of at least 1024x1024 px."
         var widthOK, heightOK;
         if ((file = this.files[0])) {
+          var selectedSize = file.size/1024.0/1024.0;
+          if (selectedSize > 4.2){
+            evt.preventDefault();
+            alert("Please use a file less than 4 MB. Detected size:"+Math.round(selectedSize)+" MB")
+            return false;
+          }
           var img = new Image();
           img.onload = function() {
             widthOK  = (this.width >= 1024)
@@ -126,7 +162,7 @@
         });
         var imgElement = $("#"+cropperToolId);
         imgElement.cropper('destroy');
-        imgElement.attr("src",croppedCanvas.toDataURL("image/png"));
+        imgElement.attr("src",croppedCanvas.toDataURL(mimetype));
         $(this).attr("disabled", "disabled");
         $(this).html("Saved for upload")
         $("#radio-"+name).addClass(

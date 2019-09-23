@@ -6,6 +6,8 @@ import boto3
 import uuid
 from datetime import date
 from botocore.exceptions import ClientError
+from PIL import Image
+import tempfile, os, shutil
 
 from django.http import Http404
 from django.contrib.auth.models import User
@@ -43,18 +45,14 @@ class S3SigningView(APIView):
             's3', 
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID, 
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.S3_UPLOADS_BUCKET_REGION)
-
+            region_name=settings.S3_UPLOADS_BUCKET_REGION
+        )
         conditions = [
             {'acl': 'public-read'}, 
             ['content-length-range', 1024, 10485760],
             ['starts-with', '$key', upload_raw_path],
-            # ['starts-with', '$success_action_redirect', 'http://ub64muck:8000/'],
         ]
-        fields = {
-            "acl": "public-read",
-            # "success_action_redirect": "http://ub64muck:8000/?view=%s"%imgid,
-        }
+        fields = { "acl": "public-read" }
         s3params = s3_client.generate_presigned_post(
             bucket_name,
             object_key,
@@ -125,3 +123,41 @@ class ImageProcessingReport(APIView):
             return ApiResponse({})
         else:
             raise Http404
+
+class ImageValidateAndPassThrough(APIView):
+    def post(self, request, format=None):
+        file_paths = self.parse_files(request)
+        print(file_paths)
+        return ApiResponse({})
+
+    def parse_files(self, request):
+        valid_names = settings.TARGET_IMAGE_SIZES.keys()
+        missing = set(valid_names) - set(request.FILES.keys())
+        if missing:
+            print("Missing: ", missing)
+            return False
+        else:
+            upload_q = []
+            temp_dir = tempfile.mkdtemp(prefix=str(uuid.uuid4()))
+            for filename, file in request.FILES.items():
+                if filename not in valid_names: continue
+
+                tmp_path = os.path.join(temp_dir, filename+".png")
+                with open(tmp_path, 'wb+') as temp_file:
+                    for chunk in file.chunks():
+                        temp_file.write(chunk)
+
+                img_obj = Image.open(tmp_path)
+
+                if self.validate_img_dimensions(img_obj, filename):
+                    upload_q.append(tmp_path)
+                else:
+                    return False
+            return upload_q
+
+    def validate_img_dimensions(self, img_obj, size_name):
+        print(size_name)
+        target_size = settings.TARGET_IMAGE_SIZES.get(size_name)
+        print("uploaded ", img_obj.size)
+        print("needed", target_size)
+        return list(img_obj.size) == [target_size["w"], target_size["h"]]
