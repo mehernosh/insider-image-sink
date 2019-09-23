@@ -29,5 +29,5 @@
   - Single storage bucket for uploads
   
 ### Sequence diagram
-![Sequence diagram](docs/sequence1.png)
+![Sequence diagram](docs/sequence2.png)
 
