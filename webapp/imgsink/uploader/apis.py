@@ -149,7 +149,7 @@ class ImageValidateAndPassThrough(APIView):
                         traceback.print_exc(file=sys.stdout)
                         img_record.status = models.UserImage.READY
                         img_record.save()
-                        return return ApiResponse({"imgid": img_record.id}, status=500)
+                        return ApiResponse({"imgid": img_record.id}, status=500)
 
                     imgurl = "https://s3.%s.amazonaws.com/%s/%s"%(
                         settings.S3_UPLOADS_BUCKET_REGION,
