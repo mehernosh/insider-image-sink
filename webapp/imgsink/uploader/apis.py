@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 
-class AwsS3SigView(APIView):
+class S3SigView(APIView):
     # authentication_classes = [authentication.SessionAuthentication]
     # permission_classes = [permissions.IsAdminUser]
 
@@ -69,7 +69,7 @@ class AwsS3SigView(APIView):
         return ApiResponse(response)
 
 
-class UploadComplete(APIView):
+class S3UploadComplete(APIView):
     # authentication_classes = [authentication.SessionAuthentication]
     # permission_classes = [permissions.IsAdminUser]
 

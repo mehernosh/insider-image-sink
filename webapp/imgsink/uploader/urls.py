@@ -4,8 +4,8 @@ from . import views
 from . import apis
 
 apiurls = [
-    path('aws-signed-post-params', apis.AwsS3SigView.as_view(), name='aws_signed_post_params'),
-    path('upload-complete', apis.UploadComplete.as_view(), name='upload_complete'),
+    path('s3-signed-post-params', apis.S3SigningView.as_view(), name='aws_signed_post_params'),
+    path('s3-upload-complete', apis.S3UploadComplete.as_view(), name='s3_upload_complete'),
     path('imgprocessor-report', apis.ImageProcessingReport.as_view(), name='imgprocessor_report')
 ]
 
