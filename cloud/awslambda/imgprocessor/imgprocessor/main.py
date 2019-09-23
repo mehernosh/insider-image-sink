@@ -15,6 +15,7 @@ MIN_WIDTH = MIN_HEIGHT = 1024
 
 IMGSINK_APIKEY = "Token %s"%os.environ.get('imgsink_apikey')
 IMGSINK_REPORTAPI = os.environ.get('imgsink_reportapi')
+TARGET_SIZES_REPORTAPI = os.environ.get('target_sizes_reportapi')
 
 INVALID_UPLOAD_ERROR = "INVALID_UPLOAD"
 UNKNOWN_ERROR = "UNKNOWN_ERROR"
@@ -79,8 +80,30 @@ def report_process_status(imgid, versions={}, error=None):
     )
     response.raise_for_status()
 
+def init_global_restrictions():
+    url = TARGET_SIZES_REPORTAPI
+    response = requests.get(url=url)
+    if response.ok:
+        payload = response.json()['payload']
+        SIZES.clear()
+        global MIN_HEIGHT
+        global MIN_WIDTH
+        maxw = maxh = 0
+        for name, size in payload.items():
+            SIZES.append(NamedSize(name=name, w=size['w'], h=size['h']))
+            if maxh < size['h']:
+                maxh = size['h']
+            if maxw < size['w']:
+                maxw = size['w']
+        # the minimum required dimensions are set as per the longest side needed.
+        MIN_WIDTH = maxw
+        MIN_HEIGHT = maxh
+    else:
+        print("Falling back to hardocded defaults")
+
 
 def handler(event, context):
+    init_global_restrictions()
     for record in event['Records']:
         bucket = record['s3']['bucket']['name']
         key = unquote_plus(record['s3']['object']['key'])
