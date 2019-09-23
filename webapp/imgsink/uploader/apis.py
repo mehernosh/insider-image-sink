@@ -1,32 +1,18 @@
-import base64
 import json
-import logging
-import requests
 import boto3
 import uuid
-from datetime import date
+import tempfile, os, shutil, sys
+
 from botocore.exceptions import ClientError
 from PIL import Image
-import tempfile, os, shutil
-
-from django.http import Http404
-from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-
 from django.conf import settings
-
-
 from rest_framework.views import APIView
 from imgsink.response import ApiResponse
 from rest_framework import authentication, permissions
 
 from uploader import models
-
-import logging
-
-logger = logging.getLogger(__name__)
-
 
 
 class S3SigningView(APIView):
@@ -150,13 +136,21 @@ class ImageValidateAndPassThrough(APIView):
                 )
                 print("upload_key", upload_key)
                 with open(file_path, 'rb') as ufile:
-                    s3_response = s3_client.put_object(
-                        ACL='public-read',
-                        Body=ufile,
-                        Bucket=settings.S3_UPLOADS_BUCKET,
-                        Key=upload_key
-                    )
-                    print(s3_response)
+                    try:
+                        s3_response = s3_client.put_object(
+                            ACL='public-read',
+                            Body=ufile,
+                            Bucket=settings.S3_UPLOADS_BUCKET,
+                            Key=upload_key
+                        )
+                        print(s3_response)
+                    except ClientError as ce:
+                        print(ex)
+                        traceback.print_exc(file=sys.stdout)
+                        img_record.status = models.UserImage.READY
+                        img_record.save()
+                        return return ApiResponse({"imgid": img_record.id}, status=500)
+
                     imgurl = "https://s3.%s.amazonaws.com/%s/%s"%(
                         settings.S3_UPLOADS_BUCKET_REGION,
                         settings.S3_UPLOADS_BUCKET, 
@@ -171,8 +165,10 @@ class ImageValidateAndPassThrough(APIView):
                         width=target_size["w"],
                         height=target_size["h"],
                     )
-                img_record.status = models.UserImage.READY
-                img_record.save()
+            else:
+                shutil.rmtree(os.path.dirname(file_path))
+            img_record.status = models.UserImage.READY
+            img_record.save()
             return ApiResponse({"imgid": img_record.id})
         else:
             img_record.status = models.UserImage.INVALID_UPLOAD

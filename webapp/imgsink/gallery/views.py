@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 from django.core.paginator import Paginator
 from django.views.generic.base import TemplateView
 from django.views.decorators.csrf import ensure_csrf_cookie
