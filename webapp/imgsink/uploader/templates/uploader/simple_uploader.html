@@ -6,7 +6,7 @@
     <div class="col-md-6">
       <h4 class="text-center">Upload to crop image</h4>
       <p>
-        Please select an image which is at least 1024x1024 px. <br>
+        Please select an image which is at least {{min_width}}x{{min_height}} px. <br>
         Larger images will be cropped. Smaller images will not be accepted
       </p>
       <form id="upload-form" method="post" enctype="multipart/form-data">
@@ -25,6 +25,8 @@
 {% block bodyscripts %}
   <script type="text/javascript">
     $(function(){
+      var min_w = {{min_width}};
+      var min_h = {{min_height}};
       function signParamsUploadToS3(form_data){
         var siging_api = "/uploader/apis/s3-signed-post-params";
         $.get(siging_api).done(function(data,status,jqXhr){
@@ -95,13 +97,13 @@
       $("#fileinput").change(function (evt) {
         var URL = window.URL || window.webkitURL;
         var file, img;
-        var message = "Please use an image of at least 1024x1024 px."
+        var message = "Please use an image of at least {{min_width}}x{{min_height}} px."
         var widthOK, heightOK;
         if ((file = this.files[0])) {
           img = new Image();
           img.onload = function () {
-            widthOK  = (this.width >= 1024)
-            heightOK = (this.height >= 1024)
+            widthOK  = (this.width >= min_w)
+            heightOK = (this.height >= min_h)
             if(widthOK && heightOK){
               $(".custom-file-label").html(file.name)
               return true;
