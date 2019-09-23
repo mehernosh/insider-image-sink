@@ -1,5 +1,4 @@
-title Image Sink @sequencediagram.org
-
+title:@sequencediagram.org
 Browser->Webapp: Get S3 upload authorisation
 Webapp-->Browser: S3 upload authorised params
 Browser->AWS S3: POST image

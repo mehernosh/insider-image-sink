@@ -1,0 +1,6 @@
+Browser->Browser: User crops images using preset tools
+Browser->Webapp: Upload images
+Webapp->Webapp: Validate image sizes
+Webapp->AWS S3: Upload images
+AWS S3-->Webapp: OK/Accepted
+Webapp-->Browser:OK+redirect to page with images
