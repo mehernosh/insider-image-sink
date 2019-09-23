@@ -10,6 +10,7 @@ django = "==2.2.5"
 djangorestframework = "*"
 boto3 = "*"
 requests = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.6"
