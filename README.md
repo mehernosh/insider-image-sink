@@ -14,7 +14,7 @@
 - Lambda 
   - running a function in a python3 environment
 
-### Sequence diagram
+### Ideal sequence
 ![Sequence diagram](docs/sequence1.png)
 
 ## Approach 2
@@ -28,6 +28,6 @@
 - S3
   - Single storage bucket for uploads
   
-### Sequence diagram
+### Ideal sequence
 ![Sequence diagram](docs/sequence2.png)
 
