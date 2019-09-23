@@ -65,6 +65,8 @@
             widthOK  = (this.width >= 1024)
             heightOK = (this.height >= 1024)
             if(widthOK && heightOK){
+              window.originalWidth = this.width;
+              window.originalHeight = this.height
               img.style = "width:100%";
               $(".custom-file-label").html(file.name)
               //$("#cropper-container").append(img);
@@ -117,12 +119,12 @@
           var img = new Image()
           img.src = dataSrc;
           img.style = "width:90%; margin:10px;"
-          img_id = "cropper-"+name;
-          img.id = img_id
+          imgId = "cropper-"+name;
+          img.id = imgId
           var subcontainer = $("<div class='subcontainer'>");
 
           subcontainer.append(img);
-          var imgElement = $("#"+img_id);
+          var imgElement = $("#"+imgId);
           window.cropperImgs['name'] = [imgElement, null];
           btncontainer.append(getRadioElement(name, minCroppedWidth, minCroppedHeight));
           //initCropperAround(imgElement, minCroppedWidth, minCroppedHeight);
@@ -135,12 +137,14 @@
         $(".size-inputs").change(radioSelectionHandler);
         $(".size-inputs").first().prop("checked", true).trigger('change');
       }
-      function initCropperAround(img_id, minw, minh){
+
+      function initCropperAround(imgId, minw, minh){
         if(window.cropperTool) $("#"+cropperToolId).cropper('destroy');
 
-        $("#"+img_id).cropper({
+        $("#"+imgId).cropper({
           viewMode:3,
           aspectRatio: minw / minh,
+          data: getInitialDimens(minw, minh),
           crop: function (event) {
             var width = event.detail.width;
             var height = event.detail.height;
@@ -157,10 +161,32 @@
             }
           }
         });
-        window.cropperToolId = img_id;
-        window.cropperTool = $("#"+img_id).data('cropper');
+        window.cropperToolId = imgId;
+        window.cropperTool = $("#"+imgId).data('cropper');
       }
-    })
+
+      function getInitialDimens(targetWidth, targetHeight){
+        if(window.originalWidth && window.originalHeight){
+          imageRatio = (1.0*originalWidth)/originalHeight;
+          targetRatio = (1.0*targetWidth)/targetHeight;
+          if(Math.round(1000*imageRatio) != Math.round(1000*targetRatio)){
+            if((targetWidth / window.originalWidth) > (targetHeight / window.originalHeight)){
+              cropWidth = originalWidth;
+              cropHeight = Math.round(window.originalWidth * targetHeight / targetWidth);
+            }else{
+              cropWidth = Math.ceil(targetWidth * originalHeight / targetHeight);
+              cropHeight = originalHeight;
+            }
+            return {width: cropWidth, height: cropHeight, left: 0, top: 0}
+          }else{
+            return {width: window.originalWidth, height: window.originalHeight, left: 0, top: 0}
+          }
+        }else{
+          return {width: targetWidth, height: targetHeight, left: 0, top: 0}
+        }
+      }
+      
+    });
 
   </script>
 {% endblock %}
