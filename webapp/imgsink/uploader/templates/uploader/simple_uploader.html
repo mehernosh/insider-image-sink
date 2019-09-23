@@ -25,21 +25,6 @@
 {% block bodyscripts %}
   <script type="text/javascript">
     $(function(){
-      function reportUpload(imgid){
-        var reporting_api = "/uploader/apis/s3-upload-complete";
-        $.ajax({
-          method: 'POST',
-          url: reporting_api,
-          data: {"imgid": imgid}
-        }).done(function(data, status, jqXhr){
-          window.location.replace("/gallery/image?id="+imgid);
-        }).fail(function(jqXhr, status, error){
-          console.log(jqXhr);
-          console.log(status);
-          console.log(error);
-        });
-      }
-
       function signParamsUploadToS3(form_data){
         var siging_api = "/uploader/apis/s3-signed-post-params";
         $.get(siging_api).done(function(data,status,jqXhr){
@@ -81,6 +66,23 @@
           console.log(jqXhr);
           console.log(status);
           console.log(error);
+        });
+      }
+
+      function reportUpload(imgid){
+        var reporting_api = "/uploader/apis/s3-upload-complete";
+        $.ajax({
+          method: 'POST',
+          url: reporting_api,
+          data: {"imgid": imgid}
+        }).done(function(data, status, jqXhr){
+          window.location.replace("/gallery/image?id="+imgid);
+        }).fail(function(jqXhr, status, error){
+          console.log(jqXhr);
+          console.log(status);
+          console.log(error);
+          // This is a hail mary
+          window.location.replace("/gallery/image");
         });
       }
 

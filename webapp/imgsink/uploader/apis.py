@@ -79,7 +79,7 @@ class S3UploadComplete(APIView):
             img_record.save()
             return ApiResponse({"status":"ok"})
         else:
-            raise Http404
+            raise ApiResponse({}, status=400)
 
 
 class RequiredImageDimens(APIView):
@@ -122,13 +122,62 @@ class ImageProcessingReport(APIView):
             img_record.save()
             return ApiResponse({})
         else:
-            raise Http404
+            return ApiResponse({}, status=400)
 
 class ImageValidateAndPassThrough(APIView):
+    file_extension = ".png"
+
     def post(self, request, format=None):
         file_paths = self.parse_files(request)
-        print(file_paths)
-        return ApiResponse({})
+        img_record = models.UserImage.objects.create()
+        if file_paths:
+            img_record.status = models.UserImage.PROCESSING
+            img_record.save()
+            s3_client = boto3.client(
+                's3', 
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID, 
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                region_name=settings.S3_UPLOADS_BUCKET_REGION
+            )
+            for name, file_path in file_paths.items():
+                target_size = settings.TARGET_IMAGE_SIZES.get(name)
+                upload_key = 'pre-processed/%s/%s-%s-%s%s'%(
+                    img_record.id, 
+                    name,
+                    target_size["w"],
+                    target_size["h"],
+                    self.file_extension
+                )
+                print("upload_key", upload_key)
+                with open(file_path, 'rb') as ufile:
+                    s3_response = s3_client.put_object(
+                        ACL='public-read',
+                        Body=ufile,
+                        Bucket=settings.S3_UPLOADS_BUCKET,
+                        Key=upload_key
+                    )
+                    print(s3_response)
+                    imgurl = "https://s3.%s.amazonaws.com/%s/%s"%(
+                        settings.S3_UPLOADS_BUCKET_REGION,
+                        settings.S3_UPLOADS_BUCKET, 
+                        upload_key
+                    )
+                    models.ImageVersion.objects.create(
+                        image=img_record, 
+                        name=name,
+                        key=upload_key,
+                        bucket=settings.S3_UPLOADS_BUCKET,
+                        url=imgurl,
+                        width=target_size["w"],
+                        height=target_size["h"],
+                    )
+                img_record.status = models.UserImage.READY
+                img_record.save()
+            return ApiResponse({"imgid": img_record.id})
+        else:
+            img_record.status = models.UserImage.INVALID_UPLOAD
+            img_record.save()
+            return ApiResponse({"imgid": img_record.id}, status=400)
 
     def parse_files(self, request):
         valid_names = settings.TARGET_IMAGE_SIZES.keys()
@@ -137,12 +186,12 @@ class ImageValidateAndPassThrough(APIView):
             print("Missing: ", missing)
             return False
         else:
-            upload_q = []
+            upload_q = {}
             temp_dir = tempfile.mkdtemp(prefix=str(uuid.uuid4()))
             for filename, file in request.FILES.items():
                 if filename not in valid_names: continue
 
-                tmp_path = os.path.join(temp_dir, filename+".png")
+                tmp_path = os.path.join(temp_dir, filename+self.file_extension)
                 with open(tmp_path, 'wb+') as temp_file:
                     for chunk in file.chunks():
                         temp_file.write(chunk)
@@ -150,7 +199,7 @@ class ImageValidateAndPassThrough(APIView):
                 img_obj = Image.open(tmp_path)
 
                 if self.validate_img_dimensions(img_obj, filename):
-                    upload_q.append(tmp_path)
+                    upload_q[filename]=tmp_path
                 else:
                     return False
             return upload_q

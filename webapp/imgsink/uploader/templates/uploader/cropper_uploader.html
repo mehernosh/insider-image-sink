@@ -78,10 +78,12 @@
           console.log(data);
           console.log("webapp upload" + status);
           console.log(jqXhr);
+          window.location.replace("/gallery/image?id="+data.payload.imgid);
         }).fail(function(jqXhr, status, error){
           console.log(jqXhr);
           console.log(status);
           console.log(error);
+          alert("Upload failed, please try again later.")
         });
       });
 

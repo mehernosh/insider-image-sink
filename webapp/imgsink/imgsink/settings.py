@@ -134,9 +134,6 @@ AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 S3_UPLOADS_BUCKET = 'mehernosh.insider.uploads'
 S3_UPLOADS_BUCKET_REGION = 'ap-south-1'
 S3_UPLOADS_BUCKET_ENDPOINTS = 's3.ap-south-1.amazonaws.com'
-    # 's3.dualstack.ap-south-1.amazonaws.com**',
-    # 'account-id.s3-control.ap-south-1.amazonaws.com',
-    # 'account-id.s3-control.dualstack.ap-south-1.amazonaws.com**',
 
 TARGET_IMAGE_SIZES = {
     'full': { 'w': 1024, 'h': 1024 },
