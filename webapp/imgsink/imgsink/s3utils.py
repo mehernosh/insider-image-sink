@@ -28,16 +28,17 @@ def build_s3_public_url(upload_key,
                         upload_key
                     )
 
-def get_s3_signed_params(key_starts_with, key, conditions, fields):
+def get_s3_signed_params(key_starts_with, key, conditions=None, fields=None, 
+                bucket=settings.S3_UPLOADS_BUCKET):
     if conditions == None:
         conditions = copy.copy(settings.S3_SIGNING_CONDITIONS)
-    conditions.append([['starts-with', '$key', key_starts_with]])
+    conditions.append(['starts-with', '$key', key_starts_with])
 
     if fields == None:
         fields = copy.copy(settings.S3_SIGNING_FIELDS)
 
     return get_s3_client().generate_presigned_post(
-        bucket_name,
+        bucket,
         key,
         Fields=fields,
         Conditions=conditions,
