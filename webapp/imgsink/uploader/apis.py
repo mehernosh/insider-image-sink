@@ -84,6 +84,12 @@ class UploadComplete(APIView):
             raise Http404
 
 
+class RequiredImageDimens(APIView):
+    @method_decorator(csrf_exempt)
+    def get(self, request, format=None):
+        return ApiResponse(settings.TARGET_IMAGE_SIZES)
+
+
 class ImageProcessingReport(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAdminUser]

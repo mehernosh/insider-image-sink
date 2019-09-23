@@ -137,3 +137,11 @@ S3_UPLOADS_BUCKET_ENDPOINTS = 's3.ap-south-1.amazonaws.com'
     # 's3.dualstack.ap-south-1.amazonaws.com**',
     # 'account-id.s3-control.ap-south-1.amazonaws.com',
     # 'account-id.s3-control.dualstack.ap-south-1.amazonaws.com**',
+
+TARGET_IMAGE_SIZES = {
+    'full': { 'w': 1024, 'h': 1024 },
+    'horizontal': { 'w': 755, 'h': 450 },
+    'vertical': { 'w':365, 'h':450 },
+    'horizontal-small': { 'w':365, 'h':212 },
+    'gallery': { 'w':380, 'h':380 }
+}
