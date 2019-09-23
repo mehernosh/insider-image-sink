@@ -67,9 +67,9 @@
             if(widthOK && heightOK){
               img.style = "width:100%";
               $(".custom-file-label").html(file.name)
-              $("#cropper-container").append(img);
-              // readyCropperImages($("#cropper-container"), img.src);
-              initCropperAround($("#cropper-container img"), 1024, 1024)
+              //$("#cropper-container").append(img);
+              readyCropperImages($("#cropper-container"), img.src);
+              //initCropperAround($("#cropper-container img"), 1024, 1024)
               return true;
             }else{
               evt.preventDefault();
@@ -87,30 +87,58 @@
         }
       });
 
+      function getRadioElement(name, w, h){
+        var htmlStr = '<div class="form-check-inline">' +
+          '<label class="form-check-label" for="radio1">' +
+            '<input type="radio" name="size-inputs" class="form-check-input size-inputs" id="radio-'
+              +name+'" name="optradio" data-name="'+name+'">'+ name + ' ' + w+ 'x' +h+
+          '</label>'+
+        '</div>';
+        return $(htmlStr);
+      }
 
-      
-      // window.cropperImgs = [];
-      // function readyCropperImages(cropperContainer, dataSrc){
-      //   $.each(sizes, function(name, size){
-      //     var minCroppedWidth = size.w;
-      //     var minCroppedHeight = size.h;
+      function radioSelectionHandler(evt){
+        var radioBtn = $(this);
+        if(!this.checked) return;
+        var name = radioBtn.data("name");
+        $(".subcontainer").hide();
+        $("#cropper-"+name).parent().show();
+        initCropperAround("cropper-"+name, sizes[name].w, sizes[name].h);
+      }
 
-      //     var img = new Image()
-      //     img.src = dataSrc;
-      //     img.style = "width:90%; margin:10px;"
-      //     img_id = "cropper-"+name;
-      //     img.id = img_id
+      window.cropperImgs = {};
 
-      //     cropperContainer.append(img);
-      //     var imgElement = $("#"+img_id);
-      //     window.cropperImgs.push(imgElement)
-      //     initCropperAround(imgElement, minCroppedWidth, minCroppedHeight);
-      //     cropperContainer.append("<br><strong>"+name+"</strong>");
-      //     cropperContainer.append("<hr>");
-      //   });
-      // }
-      function initCropperAround(imgElement, minw, minh){
-        imgElement.cropper({
+      function readyCropperImages(cropperContainer, dataSrc){
+        var btncontainer = $("<div>");
+        $.each(sizes, function(name, size){
+          var minCroppedWidth = size.w;
+          var minCroppedHeight = size.h;
+
+          var img = new Image()
+          img.src = dataSrc;
+          img.style = "width:90%; margin:10px;"
+          img_id = "cropper-"+name;
+          img.id = img_id
+          var subcontainer = $("<div class='subcontainer'>");
+
+          subcontainer.append(img);
+          var imgElement = $("#"+img_id);
+          window.cropperImgs['name'] = [imgElement, null];
+          btncontainer.append(getRadioElement(name, minCroppedWidth, minCroppedHeight));
+          //initCropperAround(imgElement, minCroppedWidth, minCroppedHeight);
+          subcontainer.append("<br><strong>"+name+"</strong>");
+          subcontainer.append("<hr>");
+          cropperContainer.append(subcontainer);
+          subcontainer.hide();
+        });
+        cropperContainer.append(btncontainer);
+        $(".size-inputs").change(radioSelectionHandler);
+        $(".size-inputs").first().prop("checked", true).trigger('change');
+      }
+      function initCropperAround(img_id, minw, minh){
+        if(window.cropperTool) $("#"+cropperToolId).cropper('destroy');
+
+        $("#"+img_id).cropper({
           viewMode:3,
           aspectRatio: minw / minh,
           crop: function (event) {
@@ -122,14 +150,15 @@
               || height < minh
             ) {
               console.log("Forcing dimensions.")
-              cropper.setData({
+              cropperTool.setData({
                 width: minw,
                 height: minh,
               });
             }
           }
         });
-        var cropper = imgElement.data('cropper');
+        window.cropperToolId = img_id;
+        window.cropperTool = $("#"+img_id).data('cropper');
       }
     })
 
