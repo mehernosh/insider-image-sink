@@ -1,5 +1,5 @@
 # Image Sink
-[This project is deployed here](http://ec2-15-206-14-176.ap-south-1.compute.amazonaws.com/gallery/)
+[This project is deployed here](http://13.235.232.147/gallery/)
 
 ## Approach 1
 
