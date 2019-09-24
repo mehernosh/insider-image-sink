@@ -28,7 +28,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'Yes') == 'Yes'
 ALLOWED_HOSTS = [
     'ub64muck', 
     '192.168.56.154', 
-    '15.206.14.176', 
+    '13.235.232.147', 
     'ec2-15-206-14-176.ap-south-1.compute.amazonaws.com'
 ]
 
