@@ -51,7 +51,7 @@ class S3UploadComplete(APIView):
             img_record.save()
             return ApiResponse({"status":"ok"})
         else:
-            raise ApiResponse({}, status=400)
+            return ApiResponse({}, status=400)
 
 
 class RequiredImageDimens(APIView):
